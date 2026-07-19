@@ -3,30 +3,74 @@
 import { useState } from "react";
 
 export function TodoList() {
-  const todoItemsInitial = [{ text: "Buy milk" }, { text: "Buy strawberries" }];
-  const [todoItems, setTodoItems] = useState(todoItemsInitial);
+  const [todoItems, setTodoItems] = useState([
+    { text: "Buy milk", completed: false },
+    { text: "Buy strawberries", completed: false },
+  ]);
+
   const [newTodo, setNewTodo] = useState("");
+
+  const toggleTodo = (index) => {
+    setTodoItems((prev) =>
+      prev.map((todo, i) =>
+        i === index
+          ? { ...todo, completed: !todo.completed }
+          : todo
+      )
+    );
+  };
+
+  const handleSubmit = (ev) => {
+    ev.preventDefault();
+
+    if (!newTodo.trim()) return;
+
+    setTodoItems((prev) => [
+      ...prev,
+      {
+        text: newTodo,
+        completed: false,
+      },
+    ]);
+
+    setNewTodo("");
+  };
+
   return (
     <>
       <ul>
         {todoItems.map((todoItem, index) => (
-          <li key={index}>{todoItem.text}</li>
+          <li key={index}>
+            <label>
+              <input
+                type="checkbox"
+                checked={todoItem.completed}
+                onChange={() => toggleTodo(index)}
+              />
+              <span
+                style={{
+                  marginLeft: "8px",
+                  textDecoration: todoItem.completed
+                    ? "line-through"
+                    : "none",
+                }}
+              >
+                {todoItem.text}
+              </span>
+            </label>
+          </li>
         ))}
       </ul>
-      <div>
-        <form
-          onSubmit={async (ev) => {
-            ev.preventDefault();
 
-            const text = newTodo;
-            setTodoItems((prev) => [...prev, { text }]);
-            setNewTodo("");
-          }}
-        >
-          <input type="text" aria-label="New to-do" onChange={(ev) => setNewTodo(ev.target.value)} value={newTodo} />
-          <button type="submit">Add to-do</button>
-        </form>
-      </div>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          aria-label="New to-do"
+          value={newTodo}
+          onChange={(ev) => setNewTodo(ev.target.value)}
+        />
+        <button type="submit">Add to-do</button>
+      </form>
     </>
-    )
+  );
 }
